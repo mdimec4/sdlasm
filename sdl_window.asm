@@ -26,6 +26,10 @@ extern SDL_PollEvent
 extern SDL_DestroyRenderer
 extern SDL_DestroyWindow
 extern SDL_Quit
+extern SDL_SetRenderDrawColor
+extern SDL_RenderClear
+extern SDL_RenderPresent
+
 
 process_input:
     push rbp
@@ -48,6 +52,30 @@ process_input:
 
 .done:
     add rsp, 64
+    pop rbp
+    ret
+
+generate_output:
+    push rbp
+    mov rbp, rsp
+
+    mov [rbp-8], rdi ; strore renderer on stack
+    sub rsp, 16
+
+    mov rdi, [rbp-8] ; first parameter to this function is renderer
+    mov rsi, 64 ; R 
+    mov rdx, 127 ; G 
+    mov rcx, 0 ; B 
+    mov r8, 255 ; A
+    call SDL_SetRenderDrawColor wrt ..plt
+
+    mov rdi, [rbp-8] ; first parameter to this function is renderer
+    call SDL_RenderClear wrt ..plt
+
+    mov rdi, [rbp-8] ; first parameter to this function is renderer
+    call SDL_RenderPresent wrt ..plt
+
+    add rsp, 16
     pop rbp
     ret
 
@@ -129,7 +157,12 @@ main:
     mov al, [rel isRunning]
     cmp al, 1
     jne .main_end
+    
     call process_input
+    
+    mov rdi, [rbp-16] ; renderer as first parameter
+    call generate_output
+    
     jmp .loop1
 
 
