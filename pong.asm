@@ -7,7 +7,7 @@ default rel
 %define SDL_QUIT    100h
 
 section .rdata
-    message db 'SDL in assembly',0
+    message db 'Pong.ASM',0
     init_fail   db 'SDL fail: %s',0
 
 section .data
