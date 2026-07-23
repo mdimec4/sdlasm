@@ -1,7 +1,6 @@
 default rel
 
 %define SDL_INIT_VIDEO  00000020h
-%define IMG_INIT_PNG    00000002h
 %define SDL_RENDERER_ACCELERATED    00000002h
 %define SDL_RENDERER_PRESENTVSYNC   00000004h
 %define SDL_QUIT    100h
@@ -17,7 +16,6 @@ section .text
 
 ;extern printf
 extern SDL_Init
-extern IMG_Init
 extern SDL_CreateWindow
 extern SDL_CreateRenderer
 extern SDL_Log
@@ -113,16 +111,6 @@ main:
     jmp .main_end
 .skip1:
 
-    ; IMG_Init
-    mov rdi, IMG_INIT_PNG
-    call IMG_Init wrt ..plt
-    test rax, IMG_INIT_PNG
-    jnz .skip2
-    ; handle error
-    call print_sdl_err
-    jmp .main_end
-.skip2:
-
     ; Create window
     lea rdi, [rel message]    ; pointer to message
     mov rsi, 100
@@ -132,11 +120,11 @@ main:
     mov r9, 0
     call SDL_CreateWindow wrt ..plt
     test rax, rax
-    jnz .skip3
+    jnz .skip2
     ; handle error
     call print_sdl_err
     jmp .main_end
-.skip3:
+.skip2:
     mov [rbp-8], rax ; store window pointer
 
     ; Create renderer
@@ -146,11 +134,11 @@ main:
     or rdx, SDL_RENDERER_PRESENTVSYNC
     call SDL_CreateRenderer wrt ..plt
     test rax, rax
-    jnz .skip4
+    jnz .skip3
     ; handle error
     call print_sdl_err
     jmp .main_end
-.skip4:
+.skip3:
     mov [rbp-16], rax ; store renderer pointer
 
 .loop1:
